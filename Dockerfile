@@ -2,16 +2,16 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
+# Copy package files first for better caching
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci
+# Install all dependencies (including dev dependencies for build)
+RUN npm ci --verbose
 
 # Copy source code
 COPY . .
 
-# Build the application
+# Build the application with verbose output
 RUN npm run build
 
 # Production stage
@@ -19,19 +19,18 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Install only production dependencies
+# Copy package files and install production dependencies
 COPY package*.json ./
-RUN npm ci --omit=dev && npm cache clean --force
+RUN npm ci --omit=dev --verbose && npm cache clean --force
 
-# Copy built application
+# Copy built application from builder stage
 COPY --from=builder /app/build ./build
 
-# Create non-root user for security
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nextjs -u 1001
-USER nextjs
+# Set environment to production
+ENV NODE_ENV=production
 
-# App Platform expects apps to listen on $PORT
-EXPOSE $PORT
+# App Platform will provide PORT environment variable
+EXPOSE 3000
 
+# Start the application
 CMD ["node", "build"]
