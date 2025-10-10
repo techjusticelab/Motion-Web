@@ -30,6 +30,10 @@
 	let updateSuccess = $state<boolean | null>(null);
 	let updateMessage = $state('');
 
+	// Edit profile modal state
+	let showEditProfileModal = $state(false);
+	let displayNameInput = $state('');
+
 	// Storage management state
 	let storageDocuments = $state<any[]>([]);
 	let totalDocuments = $state(0);
@@ -65,6 +69,41 @@
 
 		return () => data.subscription.unsubscribe();
 	});
+
+	function openEditProfile() {
+		// Prefill from current metadata
+		displayNameInput =
+			user?.user_metadata?.full_name ||
+			user?.user_metadata?.name ||
+			'';
+		showEditProfileModal = true;
+	}
+
+	function closeEditProfile() {
+		showEditProfileModal = false;
+	}
+
+	async function saveProfile() {
+		try {
+			updateSuccess = null;
+			updateMessage = '';
+			const { error } = await supabase.auth.updateUser({
+				data: { full_name: displayNameInput }
+			});
+			if (error) throw error;
+			updateSuccess = true;
+			updateMessage = 'Profile updated successfully';
+			await invalidate('supabase:auth');
+			await loadUserDetails();
+			showEditProfileModal = false;
+		} catch (err: any) {
+			console.error('Error updating profile:', err);
+			updateSuccess = false;
+			updateMessage = err?.message || 'Failed to update profile';
+		} finally {
+			resetUpdateStatus();
+		}
+	}
 
 	async function loadUserDetails() {
 		isLoadingUserDetails = true;
@@ -274,7 +313,7 @@
 	}
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<svelte:window onkeydown={handleKeydown} />
 
 <div class="flex min-h-[80vh] items-center justify-center p-4">
 	<!-- Main container with responsive layout -->
@@ -416,6 +455,7 @@
 				<div class="space-y-3" in:slide={{ duration: 500, delay: isInitialLoad ? 900 : 0 }}>
 					<h3 class="text-md font-semibold text-neutral-700">Account Actions</h3>
 					<button
+						onclick={openEditProfile}
 						class="flex w-full items-center justify-between rounded-lg border border-neutral-300 bg-white p-3 text-left text-sm font-medium text-neutral-700 shadow-sm hover:bg-neutral-50"
 						in:scale={{
 							start: 0.95,
@@ -453,6 +493,7 @@
 						</svg>
 					</button>
 					<button
+						onclick={() => goto('/auth/reset')}
 						class="flex w-full items-center justify-between rounded-lg border border-neutral-300 bg-white p-3 text-left text-sm font-medium text-neutral-700 shadow-sm hover:bg-neutral-50"
 						in:scale={{
 							start: 0.95,
@@ -577,8 +618,28 @@
 								</p>
 							</div>
 						</div>
+			</div>
+			{/if}
+
+			<!-- Edit Profile Modal -->
+				{#if showEditProfileModal}
+					<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onclick={closeEditProfile}>
+						<div class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl" onclick={(e) => e.stopPropagation()}>
+						<h3 class="text-lg font-semibold text-neutral-800 mb-4">Edit Profile</h3>
+						<label class="block text-sm font-medium text-neutral-700 mb-1">Display name</label>
+						<input
+							type="text"
+							bind:value={displayNameInput}
+							placeholder="Your name"
+							class="mb-4 block w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-primary-900 focus:outline-none focus:ring-primary-900"
+						/>
+							<div class="mt-4 flex justify-end gap-2">
+								<button class="rounded-md border border-neutral-300 px-4 py-2 text-sm" onclick={closeEditProfile}>Cancel</button>
+								<button class="rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700" onclick={saveProfile}>Save</button>
+							</div>
 					</div>
-				{/if}
+				</div>
+			{/if}
 
 				<!-- Create new case button -->
 				<div
@@ -899,5 +960,3 @@
 		</div>
 	</div>
 {/if}
-
-
