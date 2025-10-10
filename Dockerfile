@@ -2,26 +2,32 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
+# Install Yarn
+RUN npm install -g yarn
+
 # Copy package files first for better caching
-COPY package*.json ./
+COPY package.json yarn.lock* ./
 
 # Install all dependencies (including dev dependencies for build)
-RUN npm ci --verbose
+RUN yarn install --frozen-lockfile
 
 # Copy source code
 COPY . .
 
-# Build the application with verbose output
-RUN npm run build
+# Build the application
+RUN yarn build
 
 # Production stage
 FROM node:18-alpine
 
 WORKDIR /app
 
+# Install Yarn
+RUN npm install -g yarn
+
 # Copy package files and install production dependencies
-COPY package*.json ./
-RUN npm ci --omit=dev --verbose && npm cache clean --force
+COPY package.json yarn.lock* ./
+RUN yarn install --frozen-lockfile --production && yarn cache clean
 
 # Copy built application from builder stage
 COPY --from=builder /app/build ./build
