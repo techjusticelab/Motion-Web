@@ -7,7 +7,11 @@ const config = {
 		adapter: adapter({
 			out: 'build',
 			precompress: true,
-			envPrefix: ''
+			envPrefix: '',
+			// Set port for production deployment
+			env: {
+				port: process.env.PORT || 3000
+			}
 		}),
 		// Temporarily disable CSRF protection for demo
 		csrf: {

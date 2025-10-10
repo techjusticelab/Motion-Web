@@ -19,11 +19,19 @@ FROM node:18-alpine
 
 WORKDIR /app
 
+# Install only production dependencies
+COPY package*.json ./
+RUN npm ci --omit=dev && npm cache clean --force
+
 # Copy built application
 COPY --from=builder /app/build ./build
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/node_modules ./node_modules
 
-EXPOSE 5000
+# Create non-root user for security
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nextjs -u 1001
+USER nextjs
+
+# App Platform expects apps to listen on $PORT
+EXPOSE $PORT
 
 CMD ["node", "build"]
