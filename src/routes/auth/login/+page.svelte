@@ -32,29 +32,28 @@
 		}
 	});
 
-	// Handle form submission with enhanced progressive enhancement
-	function handleEnhance() {
-		return ({ formElement, formData, action, cancel, submitter }) => {
-			loading = true;
-			successMessage = null;
-			networkStatus = null;
-			
-			return async ({ result, update }) => {
-				loading = false;
-				
-				if (result.type === 'redirect') {
-					// Let SvelteKit handle the redirect
-					await update();
-				} else if (result.type === 'failure') {
-					// Form validation or auth errors - update will show them
-					await update();
-				} else {
-					// Success or other result types
-					await update();
-				}
-			};
-		};
-	}
+    // Handle form submission with enhanced progressive enhancement
+    function handleEnhance({ formElement, formData, action, cancel, submitter }) {
+        // Set loading state immediately on submit
+        loading = true;
+        successMessage = null;
+        networkStatus = null;
+
+        // Return result handler that runs when the response comes back
+        return async ({ result, update }) => {
+            // Clear loading state regardless of outcome
+            loading = false;
+
+            if (result.type === 'redirect') {
+                // Ensure client navigation occurs properly
+                await update();
+                return;
+            }
+
+            // For success/failure, allow SvelteKit to update the form/page
+            await update();
+        };
+    }
 
 	// Network connectivity checker
 	async function checkNetwork() {
