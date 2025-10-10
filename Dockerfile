@@ -2,9 +2,6 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Install Yarn
-RUN npm install -g yarn
-
 # Copy package files first for better caching
 COPY package.json yarn.lock* ./
 
@@ -21,9 +18,6 @@ RUN yarn build
 FROM node:18-alpine
 
 WORKDIR /app
-
-# Install Yarn
-RUN npm install -g yarn
 
 # Copy package files and install production dependencies
 COPY package.json yarn.lock* ./
