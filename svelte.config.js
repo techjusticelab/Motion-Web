@@ -4,15 +4,7 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 const config = {
 	preprocess: vitePreprocess(),
 	kit: { 
-		adapter: adapter({
-			out: 'build',
-			precompress: true,
-			envPrefix: '',
-			// Set port for production deployment
-			env: {
-				port: process.env.PORT || 3000
-			}
-		}),
+		adapter: adapter(),
 		// Temporarily disable CSRF protection for demo
 		csrf: {
 			checkOrigin: false
