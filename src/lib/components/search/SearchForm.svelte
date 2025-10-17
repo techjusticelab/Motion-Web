@@ -2,8 +2,6 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	import type { SearchParams } from '$lib/types';
-	import CourtFilter from './CourtFilter.svelte';
-	import JudgeFilter from './JudgeFilter.svelte';
 	import LegalFilter from './LegalFilter.svelte';
 	import { fade, fly, slide, scale } from 'svelte/transition';
 	import { cubicOut, quintOut } from 'svelte/easing';
@@ -43,26 +41,6 @@
 		showAdvancedFilters = !showAdvancedFilters;
 	}
 
-	// Handle court selection
-	function handleAddCourt(event: CustomEvent<string>) {
-		const court = event.detail;
-		if (!searchParams.court.includes(court)) {
-			searchParams.court = [...searchParams.court, court];
-		}
-	}
-
-	function handleRemoveCourt(event: CustomEvent<string>) {
-		const court = event.detail;
-		searchParams.court = searchParams.court.filter((c) => c !== court);
-	}
-
-	// Handle judge selection
-	function handleAddJudge(event: CustomEvent<string>) {
-		const judge = event.detail;
-		if (!searchParams.judge.includes(judge)) {
-			searchParams.judge = [...searchParams.judge, judge];
-		}
-	}
 
 	function handleRemoveTag(event: CustomEvent<string>) {
 		const tag = event.detail;
@@ -74,10 +52,6 @@
 		if (!searchParams.legal_tags.includes(tag)) {
 			searchParams.legal_tags = [...searchParams.legal_tags, tag];
 		}
-	}
-	function handleRemoveJudge(event: CustomEvent<string>) {
-		const judge = event.detail;
-		searchParams.judge = searchParams.judge.filter((j) => j !== judge);
 	}
 
 	// Handle tag matching behavior toggle
@@ -208,18 +182,6 @@
 				/>
 			</div>
 
-			<div in:fly={{ y: 10, duration: 500, delay: 400, easing: cubicOut }}>
-				<label for="case_number" class="mb-1 block text-xs font-medium text-neutral-700"
-					>Case Number</label
-				>
-				<input
-					id="case_number"
-					type="text"
-					bind:value={searchParams.case_number}
-					placeholder="Enter case number"
-					class="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm shadow-sm focus:border-primary-900 focus:ring-primary-900"
-				/>
-			</div>
 		</div>
 
 		<!-- Advanced Filters Toggle -->
@@ -260,26 +222,6 @@
 						bind:value={searchParams.case_name}
 						placeholder="Enter case name"
 						class="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm shadow-sm focus:border-primary-900 focus:ring-primary-900"
-					/>
-				</div>
-
-				<!-- Judge Filter Component -->
-				<div in:fly={{ y: 10, duration: 500, delay: 150, easing: cubicOut }}>
-					<JudgeFilter
-						selectedJudges={searchParams.judge}
-						allJudgeOptions={fieldOptions.judge || []}
-						on:add={handleAddJudge}
-						on:remove={handleRemoveJudge}
-					/>
-				</div>
-
-				<!-- Court Filter Component -->
-				<div in:fly={{ y: 10, duration: 500, delay: 200, easing: cubicOut }}>
-					<CourtFilter
-						selectedCourts={searchParams.court}
-						allCourtOptions={fieldOptions.court || []}
-						on:add={handleAddCourt}
-						on:remove={handleRemoveCourt}
 					/>
 				</div>
 

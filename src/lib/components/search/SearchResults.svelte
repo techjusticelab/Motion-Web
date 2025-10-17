@@ -275,13 +275,10 @@
                     "Untitled Document"}
                 </h3>
 
-                {#if caseInfo.name || caseInfo.number}
+                {#if caseInfo.name}
                   <div
                     class="mt-1 flex flex-wrap gap-x-4 text-sm text-neutral-700"
                   >
-                    {#if caseInfo.number}
-                      <span><strong>Case #:</strong> {caseInfo.number}</span>
-                    {/if}
                     {#if caseInfo.name}
                       <span><strong>Case:</strong> {caseInfo.name}</span>
                     {/if}
