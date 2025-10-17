@@ -43,7 +43,7 @@
 		legal_tags_match_all: false, // Default to OR behavior (match any tag)
 		size: 10,
 		sort_by: 'metadata.filing_date',
-		sort_order: 'desc',
+		sort_order: 'asc',
 		page: 1,
 		use_fuzzy: false,
 		include_highlights: true // Enhanced search with highlights
