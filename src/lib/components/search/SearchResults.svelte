@@ -13,8 +13,6 @@
     getRelevantDate,
     getMotionStatus,
     formatCaseInfo,
-    sortDocumentsByImportance,
-    calculateDocumentImportanceScore,
   } from "$lib/utils/legal-metadata";
   import { fade, fly, slide, scale } from "svelte/transition";
   import { cubicOut, quintOut } from "svelte/easing";
@@ -43,8 +41,7 @@
     dispatch("resetFilters");
   }
 
-  // Sort documents by importance for public defenders
-  $: sortedDocuments = sortDocumentsByImportance(searchResults.hits || []);
+  $: documents = searchResults.hits || [];
 </script>
 
 <div
@@ -62,14 +59,6 @@
       >
         Results
       </h2>
-      {#if sortedDocuments.length > 0}
-        <span
-          class="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800"
-          title="Documents sorted by relevance to public defenders"
-        >
-          Ranked by Importance
-        </span>
-      {/if}
     </div>
 
     <!-- Results Count -->
@@ -127,9 +116,9 @@
 
   <!-- Results List -->
   <div class="p-5">
-    {#if sortedDocuments.length > 0}
+    {#if documents.length > 0}
       <div class="space-y-4">
-        {#each sortedDocuments as document, i}
+        {#each documents as document, i}
           {@const priority = getDocumentPriority(document)}
           {@const relevantDate = getRelevantDate(document)}
           {@const motionStatus = getMotionStatus(document)}
@@ -139,7 +128,6 @@
           {@const parties = formatParties(document.metadata?.parties)}
           {@const attorneys = formatAttorneys(document.metadata?.attorneys)}
           {@const charges = formatCharges(document.metadata?.charges)}
-          {@const importanceScore = calculateDocumentImportanceScore(document)}
 
           <div
             class="relative cursor-pointer rounded-lg border transition-all hover:shadow-md {priority ===
@@ -175,41 +163,6 @@
                 class="mb-3 flex flex-wrap items-start justify-between gap-2"
               >
                 <div class="flex items-center gap-2">
-                  <!-- Importance Indicator -->
-                  {#if i < 3}
-                    <span
-                      class="flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold {i ===
-                      0
-                        ? 'bg-red-500 text-white'
-                        : i === 1
-                          ? 'bg-orange-500 text-white'
-                          : 'bg-yellow-500 text-white'}"
-                      title="Ranked #{i +
-                        1} by importance (Score: {importanceScore})"
-                      in:scale={{
-                        start: 0.8,
-                        duration: 500,
-                        delay: 300 + i * 100,
-                        easing: cubicOut,
-                      }}
-                    >
-                      {i + 1}
-                    </span>
-                  {:else if importanceScore > 800}
-                    <span
-                      class="flex h-6 w-6 items-center justify-center rounded-full bg-red-100 text-xs font-bold text-red-800"
-                      title="High importance (Score: {importanceScore})"
-                      in:scale={{
-                        start: 0.8,
-                        duration: 500,
-                        delay: 300 + i * 100,
-                        easing: cubicOut,
-                      }}
-                    >
-                      !
-                    </span>
-                  {/if}
-
                   <span
                     class="rounded-md px-2 py-1 text-xs font-medium {motionStatus.color ===
                     'green'
@@ -501,7 +454,7 @@
           in:fly={{
             y: 15,
             duration: 600,
-            delay: 300 + sortedDocuments.length * 50,
+            delay: 300 + documents.length * 50,
             easing: cubicOut,
           }}
         >
@@ -514,7 +467,7 @@
               in:scale={{
                 start: 0.95,
                 duration: 400,
-                delay: 350 + sortedDocuments.length * 50,
+                delay: 350 + documents.length * 50,
                 easing: cubicOut,
               }}
             >
@@ -540,7 +493,7 @@
                   in:scale={{
                     start: 0.95,
                     duration: 400,
-                    delay: 400 + sortedDocuments.length * 50 + i * 50,
+                    delay: 400 + documents.length * 50 + i * 50,
                     easing: cubicOut,
                   }}
                 >
@@ -553,7 +506,7 @@
                   in:scale={{
                     start: 0.95,
                     duration: 400,
-                    delay: 400 + sortedDocuments.length * 50 + i * 50,
+                    delay: 400 + documents.length * 50 + i * 50,
                     easing: cubicOut,
                   }}
                 >
@@ -565,7 +518,7 @@
                   in:scale={{
                     start: 0.95,
                     duration: 400,
-                    delay: 400 + sortedDocuments.length * 50 + i * 50,
+                    delay: 400 + documents.length * 50 + i * 50,
                     easing: cubicOut,
                   }}
                 >
@@ -582,7 +535,7 @@
               in:scale={{
                 start: 0.95,
                 duration: 400,
-                delay: 450 + sortedDocuments.length * 50,
+                delay: 450 + documents.length * 50,
                 easing: cubicOut,
               }}
             >
