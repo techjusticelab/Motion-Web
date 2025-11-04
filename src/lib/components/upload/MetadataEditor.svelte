@@ -38,9 +38,9 @@
 	let legalTags = $state<string[]>([]);
 	let tagInput = $state('');
 
-	// Form validation rules
+	// Form validation rules - all fields optional for improvement suggestions
 	const validationRules = {
-		document_name: { required: true, minLength: 2 },
+		document_name: { required: false, minLength: 2 },
 		subject: { required: false },
 		status: { required: false },
 		timestamp: { required: false },
@@ -137,7 +137,10 @@
 <div class="space-y-6 {className}">
 	<!-- Header -->
 	<div class="flex items-center justify-between">
-		<h3 class="text-lg font-semibold text-neutral-900">Document Metadata</h3>
+		<div>
+			<h3 class="text-lg font-semibold text-neutral-900">Document Metadata</h3>
+			<p class="text-sm text-neutral-600 mt-1">Optional: Help improve classification accuracy</p>
+		</div>
 		{#if document}
 			<div class="text-sm text-neutral-500">
 				ID: {document.id}
@@ -159,6 +162,20 @@
 	{/if}
 
 	{#if document}
+		<!-- Help text -->
+		<div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+			<div class="flex">
+				<svg class="h-5 w-5 text-blue-400 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+					<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+				</svg>
+				<div class="ml-3">
+					<p class="text-sm text-blue-700">
+						All fields are optional. Adding metadata helps improve future document classification accuracy.
+					</p>
+				</div>
+			</div>
+		</div>
+
 		<form class="space-y-4" use:form.handleSubmit={handleSubmit}>
 			<!-- Basic metadata fields -->
 			{#each Object.entries($form.values) as [key, value], i}
@@ -247,10 +264,10 @@
 				<Button
 					type="submit"
 					loading={isUpdating}
-					disabled={!$form.isValid || isUpdating}
+					disabled={isUpdating}
 					class="w-full"
 				>
-					{isUpdating ? 'Updating...' : 'Update Metadata'}
+					{isUpdating ? 'Saving Suggestions...' : 'Save Metadata Suggestions'}
 				</Button>
 			</div>
 		</form>

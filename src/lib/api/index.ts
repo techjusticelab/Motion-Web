@@ -12,12 +12,6 @@ export type {
   DocumentStats,
   RedactionAnalysis,
   ApiResponse,
-  BatchJob,
-  BatchProgress,
-  BatchResult,
-  BatchClassifyRequest,
-  BatchDocumentInput,
-  ClassificationResult,
   StorageDocument,
   StorageStats
 } from './types';
@@ -30,12 +24,14 @@ export {
   getMetadataFieldValues,
   getAllFieldOptions,
   getDocumentStats,
-  getGlobalMetadataDateRange
+  getGlobalMetadataDateRange,
+  getMetadataFields
 } from './search';
 
 // Documents API
 export {
   categoriseDocument,
+  uploadAndClassifyDocument,
   updateDocumentMetadata,
   getDocumentUrl,
   getDocumentUrlWithSearch,
@@ -51,25 +47,18 @@ export {
   getDocumentRedactionAnalysis
 } from './redaction';
 
-// Batch Processing API
-export {
-  startBatchClassification,
-  getBatchJobStatus,
-  getBatchJobResults,
-  cancelBatchJob,
-  createBatchClassifyRequest,
-  pollBatchJob
-} from './batch';
 
 // Storage Management API
 export {
   listStorageDocuments,
+  listStorageDocuments as getStorageDocuments, // Alias for compatibility
   getStorageDocumentsCount,
   getStorageStats,
   searchStorageDocumentsByName,
   getStorageDocumentUrl,
   downloadStorageDocument,
-  checkStorageDocumentExists
+  checkStorageDocumentExists,
+  deleteDocument
 } from './storage';
 
 // Legacy client exports have been removed. Use named exports above.

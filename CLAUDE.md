@@ -20,12 +20,12 @@ SvelteKit frontend for Motion-Index legal document processing system. Handles us
 
 ## Development Commands
 ```bash
-npm run dev     # Start development server
-npm run build   # Build for production
-npm run preview # Preview production build
-npm run lint    # Run linter
-npm run format  # Format code with Prettier
-npm run check   # Type-check with svelte-check
+yarn dev     # Start development server
+yarn build   # Build for production
+yarn preview # Preview production build
+yarn lint    # Run linter
+yarn format  # Format code with Prettier
+yarn check   # Type-check with svelte-check
 ```
 
 ## Environment Variables

@@ -1,8 +1,8 @@
 import { API_URL, getAuthHeaders, handleApiError } from './config';
-import type { Document, ApiResponse, FileSearchDocument, FileSearchPayload } from './types';
+import type { Document, ApiResponse, FileSearchDocument, FileSearchPayload, StorageDocument } from './types';
 
 /**
- * Upload and categorize a document
+ * Upload and categorize a document (legacy)
  */
 export async function categoriseDocument(file: File, session?: any): Promise<any> {
   try {
@@ -32,6 +32,71 @@ export async function categoriseDocument(file: File, session?: any): Promise<any
     }
   } catch (error) {
     return handleApiError(error, 'categorize document');
+  }
+}
+
+/**
+ * Upload document using dry classification endpoint and save to user storage
+ */
+export async function uploadAndClassifyDocument(file: File, session?: any): Promise<{
+  document: Document;
+  classification?: any;
+  storage_path?: string;
+  redaction_analysis?: any;
+}> {
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+    
+    // For FormData, we need minimal headers - let browser set Content-Type with boundary
+    const headers: Record<string, string> = {};
+    if (session?.access_token) {
+      headers['Authorization'] = `Bearer ${session.access_token}`;
+    }
+    
+    const response = await fetch(`${API_URL}/api/v1/upload/s3/os/dry-classification`, {
+      method: 'POST',
+      headers: headers,
+      body: formData
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const apiResponse = await response.json();
+    console.log("Dry classification response:", apiResponse);
+    
+    if (apiResponse.success === true && apiResponse.data) {
+      const data = apiResponse.data;
+      
+      // Create document structure from response
+      const document: Document = {
+        id: data.document_id || crypto.randomUUID(),
+        file_name: data.original_name || file.name,
+        file_path: data.storage_path || `documents/${file.name}`,
+        file_url: data.cdn_url || data.file_url || '',
+        file_type: file.type,
+        metadata: {
+          word_count: data.word_count,
+          page_count: data.page_count,
+          text_chars: data.text_chars
+        },
+        created_at: new Date().toISOString()
+      };
+      
+      // Return structured response
+      return {
+        document: document,
+        classification: data.classification || {},
+        storage_path: data.storage_path,
+        redaction_analysis: data.redaction_analysis
+      };
+    } else {
+      throw new Error('Document upload failed - invalid response format');
+    }
+  } catch (error) {
+    return handleApiError(error, 'upload and classify document');
   }
 }
 

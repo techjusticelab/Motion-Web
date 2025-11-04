@@ -193,3 +193,30 @@ export async function checkStorageDocumentExists(
     return false;
   }
 }
+
+/**
+ * Delete a document from storage
+ */
+export async function deleteDocument(
+  documentId: string,
+  session?: any
+): Promise<void> {
+  try {
+    const authHeaders = await getAuthHeaders(session);
+    const response = await fetch(
+      `${API_URL}/api/v1/storage/documents/${encodeURIComponent(documentId)}`,
+      {
+        method: 'DELETE',
+        headers: authHeaders
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Failed to delete document: ${error}`);
+    }
+  } catch (error) {
+    console.error('Error deleting document:', error);
+    throw error;
+  }
+}
